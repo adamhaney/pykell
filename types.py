@@ -8,6 +8,7 @@ class PykellType(object):
             raise TypeError("expected object of type {}, received {}")
         if not self.data_test(var):
             raise TypeError("'{}' falied the data validation".format(var))
+        return True
         
 
 def expects_type(**expectations):

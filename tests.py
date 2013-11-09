@@ -27,4 +27,14 @@ class ReturnTests(TestCase):
         self.assertEqual(add(x=1, y=2), 3)
 
     def test_returns_type_negative(self):
-        self.assertRaises(add(x=1, y=2))
+        self.assertRaises(bad_add(x=1, y=2))
+
+
+class TypeClassTests(TestCase):
+    def test_type_enforcement_positive(self):
+        str_type = PykellType(str)
+        self.assertTrue(str_type.validate("abc"))
+
+    def test_type_enforcement_negative(self):
+        str_type = PykellType(str)
+        self.assertTrue(str_type.validate(27))
