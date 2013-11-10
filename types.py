@@ -44,7 +44,3 @@ def returns_type(type_):
             return r
         return _expectation_checker
     return _wrap
-
-
-def make_type(**expectations):
-    pass

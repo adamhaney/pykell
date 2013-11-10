@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from .types import expects_type, returns_type, make_type
+from .types import expects_type, returns_type, PykellType
 
 
 @expects_type(a=int, b=str)
@@ -27,7 +27,8 @@ class ReturnTests(TestCase):
         self.assertEqual(add(x=1, y=2), 3)
 
     def test_returns_type_negative(self):
-        self.assertRaises(bad_add(x=1, y=2))
+        with self.assertRaises(TypeError):
+            bad_add(x=1, y=2)
 
 
 class TypeClassTests(TestCase):
@@ -37,4 +38,15 @@ class TypeClassTests(TestCase):
 
     def test_type_enforcement_negative(self):
         str_type = PykellType(str)
-        self.assertTrue(str_type.validate(27))
+        with self.assertRaises(TypeError):
+            str_type.validate(27)
+
+    def test_data_enforcement_positive(self):
+        z_string = PykellType(str, lambda d: d.startswith('z'))
+        self.assertTrue(z_string.validate('zab'))
+
+    def test_data_enforcement_negative(self):
+        z_string = PykellType(str, lambda d: d.startswith('z'))
+        with self.assertRaises(TypeError):
+            z_string.validate('abc')
+        
