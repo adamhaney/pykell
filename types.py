@@ -1,3 +1,15 @@
+class PykellType(object):
+    def __init__(self, type_, data_test=lambda d: True):
+        self.type_ = type_
+        self.data_test = data_test
+
+    def validate(self, var):
+        if not isinstance(var, self.type_):
+            raise TypeError("expected object of type {}, received {}")
+        if not self.data_test(var):
+            raise TypeError("'{}' falied the data validation".format(var))
+        
+
 def expects_type(**expectations):
     def _wrap(fn):
         def _expectation_checker(**kwargs):
