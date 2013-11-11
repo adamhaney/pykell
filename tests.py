@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from .types import expects_type, returns_type, PykellType
+from .types import expects_type, returns_type, PykellType, T
 
 
 @expects_type(a=int, b=str)
@@ -67,3 +67,9 @@ class TypeClassTests(TestCase):
 
         with self.assertRaises(TypeError):
             str_int_type.validate(2.0)
+
+    def test_pipe_multi_type_syntax(self):
+        str_int_type = T(int) | T(str)
+
+        self.assertTrue(str_int_type.validate(2))
+        self.assertTrue(str_int_type.validate("boo"))

@@ -18,6 +18,8 @@ class PykellType(object):
 
     def contribute_type(self, type_):
         self.types.append(type_)
+
+T = PykellType
         
 
 def expects_type(**expectations):
