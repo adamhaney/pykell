@@ -1,7 +1,10 @@
 class PykellType(object):
-    def __init__(self, type_, data_test=lambda d: True):
+    def __init__(self, type_, validator=None):
         self.types = [type_]
-        self.data_test = data_test
+        if validator is not None:
+            self.validators = [validator]
+        else:
+            self.validators = [lambda d: True]
 
     def validate(self, var):
         valid_type = False
@@ -12,12 +15,32 @@ class PykellType(object):
         if not valid_type:
             raise TypeError("expected object of type {}, received {}")
 
-        if not self.data_test(var):
-            raise TypeError("'{}' falied the data validation".format(var))
+        for validator in self.validators:
+            if not validator(var):
+                raise TypeError("'{}' falied the data validation".format(var))
+
         return True
 
     def contribute_type(self, type_):
         self.types.append(type_)
+
+    def contribute_validator(self, validator):
+        self.validators.append(validator)
+
+    def contribute_pykell_type(self, pykell_type):
+        for type_ in pykell_type.types:
+            self.contribute_type(type_)
+
+        for validator in pykell_type.validators:
+            self.contribute_validator(validator)
+
+        return self
+
+    def __repr__(self):
+        return u"#<pkell.types.PykellType {}, w/ {} validators>".format(self.types, 1)
+
+    def __or__(self, rhs):
+        return self.contribute_pykell_type(rhs)
 
 T = PykellType
         
