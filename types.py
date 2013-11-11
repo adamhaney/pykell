@@ -15,6 +15,9 @@ class PykellType(object):
         if not self.data_test(var):
             raise TypeError("'{}' falied the data validation".format(var))
         return True
+
+    def contribute_type(self, type_):
+        self.types.append(type_)
         
 
 def expects_type(**expectations):

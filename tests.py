@@ -49,4 +49,21 @@ class TypeClassTests(TestCase):
         z_string = PykellType(str, lambda d: d.startswith('z'))
         with self.assertRaises(TypeError):
             z_string.validate('abc')
-        
+
+    def test_multiple_types_positive(self):
+        """
+        make sure we can add two types to the class and that it then
+        says an object having one of those types is valid
+        """
+        str_int_type = PykellType(int)
+        str_int_type.contribute_type(str)
+
+        self.assertTrue(str_int_type.validate(2))
+        self.assertTrue(str_int_type.validate("boo"))
+
+    def test_multiple_types_negative(self):
+        str_int_type = PykellType(int)
+        str_int_type.contribute_type(str)
+
+        with self.assertRaises(TypeError):
+            str_int_type.validate(2.0)
