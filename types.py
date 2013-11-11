@@ -1,11 +1,17 @@
 class PykellType(object):
     def __init__(self, type_, data_test=lambda d: True):
-        self.type_ = type_
+        self.types = [type_]
         self.data_test = data_test
 
     def validate(self, var):
-        if not isinstance(var, self.type_):
+        valid_type = False
+        for type_ in self.types:
+            if isinstance(var, type_):
+                valid_type = True
+
+        if not valid_type:
             raise TypeError("expected object of type {}, received {}")
+
         if not self.data_test(var):
             raise TypeError("'{}' falied the data validation".format(var))
         return True
