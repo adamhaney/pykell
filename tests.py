@@ -1,9 +1,9 @@
 from unittest import TestCase
 
-from .types import expects_type, returns_type, PykellType, T
+from .types import expects_type, returns_type, T
 
 
-@expects_type(a=int, b=str)
+@expects_type(a=T(int), b=T(str))
 def example_kw_arg_function(a, b):
     return a, b
 
@@ -13,11 +13,11 @@ class ExpectsTests(TestCase):
         self.assertEqual(example_kw_arg_function(a=1, b="baz"), (1, "baz"))
 
 
-@returns_type(int)
+@returns_type(T(int))
 def add(x, y):
     return x + y
 
-@returns_type(str)
+@returns_type(T(str))
 def bad_add(x, y):
     return x + y
 
@@ -33,20 +33,20 @@ class ReturnTests(TestCase):
 
 class TypeClassTests(TestCase):
     def test_type_enforcement_positive(self):
-        str_type = PykellType(str)
+        str_type = T(str)
         self.assertTrue(str_type.validate("abc"))
 
     def test_type_enforcement_negative(self):
-        str_type = PykellType(str)
+        str_type = T(str)
         with self.assertRaises(TypeError):
             str_type.validate(27)
 
     def test_data_enforcement_positive(self):
-        z_string = PykellType(str, lambda d: d.startswith('z'))
+        z_string = T(str, lambda d: d.startswith('z'))
         self.assertTrue(z_string.validate('zab'))
 
     def test_data_enforcement_negative(self):
-        z_string = PykellType(str, lambda d: d.startswith('z'))
+        z_string = T(str, lambda d: d.startswith('z'))
         with self.assertRaises(TypeError):
             z_string.validate('abc')
 
@@ -55,14 +55,14 @@ class TypeClassTests(TestCase):
         make sure we can add two types to the class and that it then
         says an object having one of those types is valid
         """
-        str_int_type = PykellType(int)
+        str_int_type = T(int)
         str_int_type.contribute_type(str)
 
         self.assertTrue(str_int_type.validate(2))
         self.assertTrue(str_int_type.validate("boo"))
 
     def test_multiple_types_negative(self):
-        str_int_type = PykellType(int)
+        str_int_type = T(int)
         str_int_type.contribute_type(str)
 
         with self.assertRaises(TypeError):
