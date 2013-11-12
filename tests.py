@@ -113,4 +113,14 @@ class PykellContributionTests(TestCase):
         with self.assertRaises(TypeError):
             self.positive_even_number.validate(3)
 
-                        
+class TypeNotRequiredTests(TestCase):
+    """
+    In some cases we may just care that a validator is true, not
+    what the underlying type is
+    """
+    def setUp(self):
+        self.positive_something = T(validator=lambda d: d > 0)
+
+    def test_validator_without_type(self):
+        self.assertTrue(self.positive_something.validate(2))
+        

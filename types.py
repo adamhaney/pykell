@@ -9,8 +9,11 @@ class T(object):
     >>> even_positive_number = T(int, lambda d: d > 0) | T(float, lambda d: d % 2 == 0)
     """
 
-    def __init__(self, type_, validator=None):
-        self.types = [type_]
+    def __init__(self, type_=None, validator=None):
+        if type_:
+            self.types = [type_]
+        else:
+            self.types = []
         if validator is not None:
             self.validators = [validator]
         else:
@@ -22,6 +25,10 @@ class T(object):
             if isinstance(var, type_):
                 valid_type = True
 
+        # If we don't have a type skip type validation
+        if len(self.types) == 0:
+            valid_type = True
+                
         if not valid_type:
             raise TypeError(
                 "expected object of type {}, received {}".format(

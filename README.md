@@ -20,6 +20,5 @@ express their ideas.
 
 TODO
 ----
-  - Remove the requiremnt that a T object must define a python type, we may only care that a type passes a certain test, not what its underlying type is.
   - Allow recursive type definitions
   - Change from using a .validate method to using having __call__ return a proxy model, similar to Mock
