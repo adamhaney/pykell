@@ -1,46 +1,79 @@
-class PykellType(object):
-    def __init__(self, type_, data_test=lambda d: True):
-        self.type_ = type_
-        self.data_test = data_test
+class T(object):
+    """
+    A pykell 'type' class. This is different from a python type in
+    that it allows a type to be the union of multiple types and allows
+    for data validation to be baked into the type.
+
+    This allows us to create types for things like, 'even_positive_number'
+
+    >>> even_positive_number = T(int, lambda d: d > 0) | T(float, lambda d: d % 2 == 0)
+    """
+
+    def __init__(self, type_, validator=None):
+        self.types = [type_]
+        if validator is not None:
+            self.validators = [validator]
+        else:
+            self.validators = [lambda d: True]
 
     def validate(self, var):
-        if not isinstance(var, self.type_):
-            raise TypeError("expected object of type {}, received {}")
-        if not self.data_test(var):
-            raise TypeError("'{}' falied the data validation".format(var))
+        valid_type = False
+        for type_ in self.types:
+            if isinstance(var, type_):
+                valid_type = True
+
+        if not valid_type:
+            raise TypeError(
+                "expected object of type {}, received {}".format(
+                    ",".join([str(t) for t in self.types]),
+                    type(var)
+                )
+            )
+
+        for validator in self.validators:
+            if not validator(var):
+                raise TypeError("'{}' falied the data validation".format(var))
+
         return True
+
+    def contribute_type(self, type_):
+        self.types.append(type_)
+
+    def contribute_validator(self, validator):
+        self.validators.append(validator)
+
+    def contribute_pykell_type(self, pykell_type):
+        for type_ in pykell_type.types:
+            self.contribute_type(type_)
+
+        for validator in pykell_type.validators:
+            self.contribute_validator(validator)
+
+        return self
+
+    def __repr__(self):
+        return u"#<pkell.types.PykellType {}, w/ {} validators>".format(self.types, 1)
+
+    def __or__(self, rhs):
+        return self.contribute_pykell_type(rhs)
         
 
 def expects_type(**expectations):
     def _wrap(fn):
         def _expectation_checker(**kwargs):
-            for arg, type_ in expectations.items():
-                if not isinstance(kwargs[arg], type_):
-                    raise TypeError(
-                        "{} expected {} to be instance of {}, instead received {}".format(
-                            fn.__name__,
-                            arg,
-                            type_,
-                            type(kwargs[arg])
-                        )
-                    )
+            for arg, pykell_type in expectations.items():
+                print arg, pykell_type
+                pykell_type.validate(kwargs[arg])
             return fn(**kwargs)
         return _expectation_checker
     return _wrap
 
 
-def returns_type(type_):
+def returns_type(pykell_type):
     def _wrap(fn):
         def _expectation_checker(**kwargs):
             r = fn(**kwargs)
-            if not isinstance(r, type_):
-                raise TypeError(
-                    "{} should have returned a value of {} instead it returned {}".format(
-                        fn.__name__,
-                        type_,
-                        type(r)
-                        )
-                    )
+            pykell_type.validate(r)
             return r
         return _expectation_checker
     return _wrap
